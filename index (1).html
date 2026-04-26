@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRO — Genaro Mateos Castro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────
+   TOKENS — light is default, JS adds .dark
+───────────────────────────────────────── */
+:root{
+  --bg:#f2efe8;
+  --bg2:#e8e4db;
+  --bg3:#ddd8ce;
+  --fg:#1a1916;
+  --muted:#7a766f;
+  --muted2:#b0aba2;
+  --green:#7ab520;
+  --green2:#a8c44a;
+  --green-dark:#4d7210;
+  --green-bg:rgba(122,181,32,.08);
+  --border:rgba(122,181,32,.25);
+  --border-dim:rgba(26,25,22,.1);
+  --card:#edeae2;
+  --card2:#e4e0d8;
+  --tag-bg:rgba(122,181,32,.1);
+  --noise:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --shadow:0 2px 24px rgba(0,0,0,.06);
+}
+.dark{
+  --bg:#0e0e0b;
+  --bg2:#181815;
+  --bg3:#202019;
+  --fg:#f0ece4;
+  --muted:#5a5753;
+  --muted2:#3a3835;
+  --green:#a8c44a;
+  --green2:#c8e46a;
+  --green-dark:#7a9232;
+  --green-bg:rgba(168,196,74,.07);
+  --border:rgba(168,196,74,.22);
+  --border-dim:rgba(240,236,228,.07);
+  --card:#1c1c19;
+  --card2:#222220;
+  --tag-bg:rgba(168,196,74,.1);
+  --shadow:0 2px 24px rgba(0,0,0,.35);
+}
+
+/* ─────────── RESET ─────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:'DM Mono',monospace;
+  font-size:14px;line-height:1.6;
+  overflow-x:hidden;cursor:none;
+  transition:background .35s,color .35s;
+}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+
+/* ─────────── SCROLLBAR ─────────── */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--green)}
+
+/* ─────────── CURSOR ─────────── */
+#cur{position:fixed;width:10px;height:10px;background:var(--green);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:background .3s,width .15s,height .15s}
+#ring{position:fixed;width:34px;height:34px;border:1.5px solid var(--border);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s,border-color .3s}
+#ring.h{width:54px;height:54px;border-color:var(--green)}
+
+/* ─────────── NAV ─────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1.1rem 2.5rem;
+  background:var(--bg);
+  border-bottom:2px solid var(--border-dim);
+  transition:background .35s,border-color .35s;
+}
+/* green left accent on nav */
+nav::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--green)}
+
+.nav-logo{display:flex;align-items:center;gap:10px;opacity:0;animation:aFadeIn .7s ease .2s forwards}
+.nav-logo img{width:36px;height:36px;object-fit:contain;border-radius:5px}
+.nav-brand{font-family:'Syne',sans-serif;font-weight:800;font-size:.78rem;letter-spacing:.12em;color:var(--fg);line-height:1.15;transition:color .35s}
+.nav-brand small{display:block;font-size:.54rem;font-weight:400;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+
+.nav-r{display:flex;align-items:center;gap:1.75rem}
+.nav-links{display:flex;gap:1.75rem;list-style:none;opacity:0;animation:aFadeIn .7s ease .4s forwards}
+.nav-links a{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg);opacity:.45;transition:opacity .25s,color .25s}
+.nav-links a:hover{opacity:1;color:var(--green)}
+
+/* THEME TOGGLE */
+.tog{
+  width:42px;height:22px;border-radius:11px;
+  background:var(--card2);border:1.5px solid var(--border-dim);
+  position:relative;cursor:none;flex-shrink:0;
+  transition:background .35s,border-color .35s;
+  opacity:0;animation:aFadeIn .7s ease .5s forwards;
+}
+.tog-pill{
+  position:absolute;top:2px;left:2px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--green);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .35s;
+}
+.dark .tog-pill{transform:translateX(20px)}
+.tog-icons{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 4px;font-size:8px;pointer-events:none;user-select:none;color:var(--muted)}
+
+/* ─────────────────────────────
+   HERO
+───────────────────────────── */
+.hero{
+  min-height:100svh;
+  padding:8rem 2.5rem 5rem;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  position:relative;overflow:hidden;
+}
+
+/* DECO: big diagonal stripe */
+.hero-stripe{
+  position:absolute;top:-20%;right:-10%;
+  width:55%;height:140%;
+  background:var(--green-bg);
+  transform:skewX(-12deg);
+  pointer-events:none;
+  border-left:1px solid var(--border);
+}
+/* pixel grid dots */
+.hero-dots{
+  position:absolute;top:6rem;right:2.5rem;
+  width:120px;height:120px;
+  background-image:radial-gradient(circle,var(--green) 1.5px,transparent 1.5px);
+  background-size:12px 12px;
+  opacity:.25;pointer-events:none;
+}
+/* corner bracket top-left */
+.hero-bracket{
+  position:absolute;top:7rem;left:2.5rem;
+  width:40px;height:40px;
+  border-top:2px solid var(--green);
+  border-left:2px solid var(--green);
+  pointer-events:none;opacity:.5;
+}
+/* bottom right bracket */
+.hero-bracket2{
+  position:absolute;bottom:4rem;right:2.5rem;
+  width:40px;height:40px;
+  border-bottom:2px solid var(--green);
+  border-right:2px solid var(--green);
+  pointer-events:none;opacity:.5;
+}
+
+/* BG text */
+.hero-bg-word{
+  position:absolute;top:50%;left:2.5rem;
+  transform:translateY(-50%);
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(7rem,22vw,20rem);
+  letter-spacing:-.05em;text-transform:uppercase;
+  color:transparent;-webkit-text-stroke:1px var(--border-dim);
+  white-space:nowrap;pointer-events:none;user-select:none;
+  line-height:1;
+}
+
+.hero-pill{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:var(--green);color:#fff;
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  padding:.3rem .9rem;border-radius:2px;
+  margin-bottom:1.5rem;
+  opacity:0;animation:aFadeUp .7s ease .4s forwards;
+}
+.hero-pill::before{content:'▶';font-size:7px}
+
+.hero-eyebrow{
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.85rem;
+  opacity:0;animation:aFadeUp .7s ease .6s forwards;
+}
+
+/* ── GRAVITY NAME ── */
+.gname{
+  font-family:'DM Serif Display',serif;
+  font-size:clamp(3rem,8.5vw,8rem);
+  line-height:.92;letter-spacing:-.025em;
+  margin-bottom:2rem;
+  display:flex;flex-wrap:wrap;align-items:baseline;
+  gap:.06em;overflow:visible;
+}
+.gword{display:inline-flex;gap:.02em;margin-right:.25em;overflow:visible}
+.gword.italic .gc{font-style:italic;color:var(--green)}
+.gc{
+  display:inline-block;will-change:transform,opacity;
+}
+.gc.fallen{animation:gFall var(--fd,.5s) cubic-bezier(.55,0,1,.45) var(--fdelay,0s) forwards}
+.gc.rising{ animation:gRise var(--fd,.5s) cubic-bezier(.16,1,.3,1) var(--fdelay,0s) forwards}
+
+@keyframes gFall{
+  0%  {transform:translateY(0) rotate(0);opacity:1}
+  60% {opacity:.35}
+  100%{transform:translateY(var(--fdist,260px)) rotate(var(--frot,14deg));opacity:0}
+}
+@keyframes gRise{
+  0%  {transform:translateY(50px) rotate(var(--frot,0deg));opacity:0}
+  100%{transform:translateY(0) rotate(0);opacity:1}
+}
+
+.hero-desc{
+  font-size:13px;line-height:1.9;color:var(--muted);
+  max-width:540px;margin-bottom:2.5rem;
+  opacity:0;animation:aFadeUp .7s ease 1s forwards;
+}
+
+.hero-cta{
+  display:flex;gap:1rem;flex-wrap:wrap;
+  opacity:0;animation:aFadeUp .7s ease 1.15s forwards;
+}
+
+/* location badge */
+.hero-loc{
+  position:absolute;right:2.5rem;bottom:5rem;
+  display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;
+  opacity:0;animation:aFadeIn .8s ease 1.5s forwards;
+}
+.hero-loc-badge{
+  display:flex;align-items:center;gap:.5rem;
+  background:var(--card);border:1px solid var(--border-dim);
+  padding:.4rem .85rem;font-size:10px;letter-spacing:.1em;
+  color:var(--muted);transition:background .35s;
+}
+.hero-loc-badge .dot-live{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s ease infinite}
+
+.scroll-ind{
+  position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  opacity:0;animation:aFadeIn 1s ease 2s forwards;
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);
+}
+.scroll-line{width:1px;height:44px;background:linear-gradient(var(--green),transparent);animation:sPulse 2s ease infinite}
+
+/* ─────────────────────────────
+   BUTTONS
+───────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  border:2px solid var(--fg);
+  padding:.7rem 1.6rem;
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--fg);position:relative;overflow:hidden;
+  transition:color .3s,border-color .3s;cursor:none;
+}
+.btn::before{content:'';position:absolute;inset:0;background:var(--fg);transform:translateX(-101%);transition:transform .32s cubic-bezier(.16,1,.3,1)}
+.btn:hover::before{transform:translateX(0)}
+.btn:hover{color:var(--bg)}
+.btn span,.barr{position:relative;z-index:1}
+
+.btn-green{border-color:var(--green);color:var(--green)}
+.btn-green::before{background:var(--green)}
+.btn-green:hover{color:#fff}
+
+.btn-ghost{border-color:var(--border-dim);color:var(--muted)}
+.btn-ghost::before{background:var(--card2)}
+.btn-ghost:hover{color:var(--fg)}
+
+/* ─────────────────────────────
+   MARQUEE
+───────────────────────────── */
+.marq-wrap{
+  border-top:2px solid var(--border-dim);
+  border-bottom:2px solid var(--border-dim);
+  padding:1rem 0;overflow:hidden;
+  position:relative;
+}
+/* green bar on marquee */
+.marq-wrap::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green)}
+.marq-track{display:flex;gap:0;white-space:nowrap;animation:marquee 30s linear infinite;width:max-content}
+.mi{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(1.1rem,2.5vw,2.2rem);
+  letter-spacing:-.02em;text-transform:uppercase;
+  padding:0 2rem;color:transparent;
+  -webkit-text-stroke:1.5px var(--border);
+  transition:color .35s,-webkit-text-stroke .35s;
+}
+.mi.f{-webkit-text-stroke:0;color:var(--green)}
+.mi.sep{color:var(--green);-webkit-text-stroke:0;font-size:1rem;opacity:.6;padding:0 .5rem;align-self:center}
+
+/* ─────────────────────────────
+   SECTIONS
+───────────────────────────── */
+.sec{padding:7rem 2.5rem;border-bottom:1px solid var(--border-dim);position:relative}
+.sec-hd{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:4.5rem;
+}
+.sec-num{
+  font-size:10px;letter-spacing:.22em;color:var(--muted);
+  padding-top:5px;display:flex;align-items:center;gap:.5rem;
+}
+.sec-num::before{content:'';width:20px;height:1px;background:var(--green);flex-shrink:0}
+.sec-title{font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,3.5rem);line-height:1;letter-spacing:-.02em;color:var(--fg);transition:color .35s}
+.sec-title em{font-style:italic;color:var(--green)}
+
+/* section deco bracket */
+.sec-bracket{position:absolute;top:6rem;right:2.5rem;width:28px;height:28px;border-top:2px solid var(--border);border-right:2px solid var(--border);pointer-events:none}
+
+/* ─────────────────────────────
+   ABOUT
+───────────────────────────── */
+.about-grid{display:grid;grid-template-columns:360px 1fr;gap:5rem;align-items:start}
+
+.photo-wrap{
+  position:sticky;top:8rem;
+  background:var(--card);
+  border:1px solid var(--border-dim);
+  overflow:hidden;
+}
+/* photo top green bar */
+.photo-wrap::before{content:'GENARO M. CASTRO';position:absolute;top:0;left:0;right:0;padding:.4rem .75rem;background:var(--green);font-family:'Syne',sans-serif;font-weight:700;font-size:8px;letter-spacing:.18em;color:#fff;z-index:2}
+.photo-wrap img{width:100%;display:block;object-fit:cover;object-position:top center;padding-top:24px;transition:filter .4s}
+.photo-wrap:hover img{filter:none}
+/* corner numbers like design overlay */
+.photo-corner{position:absolute;bottom:.75rem;left:.75rem;font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.5);z-index:2;pointer-events:none}
+
+.about-content{display:flex;flex-direction:column;gap:2.5rem}
+
+/* typed box with graphic style */
+.rbox{
+  background:var(--green);
+  padding:1.25rem 1.5rem;
+  position:relative;overflow:hidden;
+}
+.rbox::after{content:'';position:absolute;right:-20px;top:-20px;width:80px;height:80px;border:2px solid rgba(255,255,255,.15);border-radius:50%}
+.rlabel{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:.4rem}
+.typed{font-family:'DM Serif Display',serif;font-size:1.35rem;font-style:italic;color:#fff;min-height:2rem}
+.typed-cursor{display:inline-block;width:2px;height:1.2em;background:#fff;margin-left:2px;vertical-align:middle;animation:blink .75s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.bio{font-size:13px;line-height:2.05;color:var(--muted)}
+.bio strong{color:var(--fg);font-weight:500}
+
+.sub-label{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.75rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.sub-label::before{content:'';width:14px;height:1.5px;background:var(--green)}
+
+.tags{display:flex;flex-wrap:wrap;gap:.4rem}
+.tag{
+  background:var(--tag-bg);border:1px solid var(--border);
+  padding:.28rem .75rem;font-size:10px;letter-spacing:.08em;
+  color:var(--green-dark);transition:all .25s;
+}
+.dark .tag{color:var(--green2)}
+.tag:hover{background:var(--green);color:#fff;border-color:var(--green)}
+
+.tools{display:flex;flex-wrap:wrap;gap:.4rem}
+.tool{
+  display:flex;align-items:center;gap:6px;
+  border:1px solid var(--border-dim);
+  padding:.28rem .75rem;font-size:10px;letter-spacing:.08em;
+  color:var(--muted);transition:all .25s;background:var(--card);
+}
+.tool:hover{color:var(--green);border-color:var(--border)}
+.tdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* tool percent bar */
+.tool-bar{height:2px;background:var(--border-dim);margin-top:.2rem;border-radius:1px;overflow:hidden}
+.tool-fill{height:100%;background:var(--green);border-radius:1px;transform:scaleX(0);transform-origin:left;transition:transform .8s cubic-bezier(.16,1,.3,1)}
+.tool-fill.vis{transform:scaleX(1)}
+
+/* ─────────────────────────────
+   WORKS
+───────────────────────────── */
+.wgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border-dim);border:1px solid var(--border-dim)}
+.wcard{
+  background:var(--bg);padding:2rem;
+  position:relative;overflow:hidden;cursor:none;
+  transition:background .3s;
+  min-height:300px;display:flex;flex-direction:column;justify-content:space-between;
+}
+.wcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green);transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.16,1,.3,1)}
+.wcard:hover::before{transform:scaleX(1)}
+.wcard:hover{background:var(--card)}
+.wimg{
+  width:100%;aspect-ratio:16/10;
+  background:var(--card2);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:1.25rem;position:relative;overflow:hidden;flex:1;
+}
+/* crosshatch pattern on empty image */
+.wimg::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(-55deg,transparent,transparent 8px,var(--border-dim) 8px,var(--border-dim) 9px)}
+.wimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.wcard:hover .wimg img{transform:scale(1.04)}
+.wph{font-size:9px;letter-spacing:.2em;color:var(--muted2);text-transform:uppercase;position:relative}
+.wmeta{display:flex;justify-content:space-between;align-items:flex-end}
+.wnum{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:2.5rem;line-height:1;
+  color:var(--border-dim);letter-spacing:-.04em;
+  position:absolute;top:1.5rem;right:1.75rem;
+  transition:color .3s;
+}
+.wcard:hover .wnum{color:var(--green)}
+.wname{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:var(--fg);transition:color .3s;letter-spacing:-.01em}
+.wcard:hover .wname{color:var(--green)}
+.wtype{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.2rem}
+.warr{opacity:0;transform:translate(-6px,6px);transition:opacity .3s,transform .3s;font-size:1.2rem;color:var(--green)}
+.wcard:hover .warr{opacity:1;transform:translate(0,0)}
+
+.works-bar{padding:2rem 2.5rem;border-bottom:1px solid var(--border-dim)}
+
+/* ─────────────────────────────
+   CV
+───────────────────────────── */
+.cv-sec{padding:7rem 2.5rem;border-bottom:1px solid var(--border-dim)}
+.cv-list{margin-top:4rem}
+.cvi{
+  display:grid;grid-template-columns:150px 1fr auto;
+  gap:2rem;padding:1.75rem 0;
+  border-bottom:1px solid var(--border-dim);
+  align-items:start;
+  opacity:0;transform:translateY(16px);transition:opacity .55s,transform .55s;
+  position:relative;
+}
+.cvi::before{content:'';position:absolute;left:-2.5rem;top:0;bottom:0;width:2px;background:var(--green);transform:scaleY(0);transform-origin:top;transition:transform .5s cubic-bezier(.16,1,.3,1)}
+.cvi.vis{opacity:1;transform:translateY(0)}
+.cvi.vis::before{transform:scaleY(1)}
+.cvyr{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:var(--green-dark);letter-spacing:.08em;padding-top:3px}
+.dark .cvyr{color:var(--green)}
+.cvrole{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;margin-bottom:.35rem;color:var(--fg)}
+.cvplace{font-size:12px;color:var(--muted)}
+.cvresp{font-size:11px;color:var(--muted2);margin-top:.5rem;line-height:1.8}
+.cvbadge{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:9px;border:1.5px solid var(--border);
+  padding:.25rem .7rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--green-dark);height:fit-content;white-space:nowrap;
+  background:var(--green-bg);
+}
+.dark .cvbadge{color:var(--green)}
+
+/* ─────────────────────────────
+   CONTACT
+───────────────────────────── */
+.csec{
+  padding:7rem 2.5rem;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:5rem;border-bottom:1px solid var(--border-dim);
+  position:relative;
+}
+/* big decorative number */
+.csec::before{
+  content:'✉';
+  position:absolute;right:2.5rem;top:6rem;
+  font-size:8rem;color:var(--border-dim);
+  pointer-events:none;line-height:1;
+}
+.cbig{font-family:'DM Serif Display',serif;font-size:clamp(2.4rem,4.5vw,3.8rem);line-height:1.05;letter-spacing:-.02em;color:var(--fg);transition:color .35s}
+.cbig em{font-style:italic;color:var(--green)}
+
+.c-info{margin-top:2rem;display:flex;flex-direction:column;gap:.6rem}
+.cemail{
+  display:inline-flex;align-items:center;gap:.6rem;
+  font-size:13px;color:var(--green);
+  border-bottom:1.5px solid var(--border);
+  padding-bottom:.4rem;transition:border-color .3s;
+}
+.cemail:hover{border-color:var(--green)}
+.cemail::before{content:'@';font-family:'Syne',sans-serif;font-weight:800;opacity:.5}
+.cphone{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:.6rem}
+.cphone::before{content:'#';font-family:'Syne',sans-serif;font-weight:800;color:var(--green);opacity:.6}
+
+.cdesc{margin-top:1.5rem;font-size:12px;line-height:1.95;color:var(--muted);max-width:380px}
+
+.socials{display:flex;flex-direction:column;justify-content:flex-end;gap:.25rem}
+.slabel{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;
+}
+.slabel::before{content:'';width:14px;height:1.5px;background:var(--green)}
+.slink{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.85rem 0;border-top:1px solid var(--border-dim);
+  font-family:'Syne',sans-serif;font-size:.85rem;font-weight:800;
+  color:var(--fg);transition:color .25s,padding-left .25s;
+  letter-spacing:-.01em;
+}
+.slink:hover{color:var(--green);padding-left:.5rem}
+.slink-arr{color:var(--muted);font-size:11px;font-family:'DM Mono',monospace;transition:color .25s}
+.slink:hover .slink-arr{color:var(--green)}
+
+/* ─────────────────────────────
+   FOOTER
+───────────────────────────── */
+footer{
+  padding:1.75rem 2.5rem;
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:2px solid var(--border-dim);
+  position:relative;
+}
+footer::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--green)}
+.fcopy{font-size:10px;letter-spacing:.1em;color:var(--muted)}
+.flogo{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--border);letter-spacing:.05em;transition:color .35s}
+
+/* ─────────────────────────────
+   REVEAL
+───────────────────────────── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.vis{opacity:1;transform:translateY(0)}
+.mag{display:inline-block;transition:transform .28s cubic-bezier(.23,1,.32,1)}
+
+/* ─────────────────────────────
+   NOISE OVERLAY
+───────────────────────────── */
+#noise{position:fixed;inset:0;pointer-events:none;z-index:9990;background-image:var(--noise);opacity:.022;mix-blend-mode:multiply}
+.dark #noise{mix-blend-mode:overlay;opacity:.03}
+
+/* ─────────────────────────────
+   KEYFRAMES
+───────────────────────────── */
+@keyframes aFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes aFadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes sPulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.8)}}
+@keyframes badgePulse{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes tapFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes arrowPulse{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+
+/* ─────────────────────────────
+   PROJECT CARDS — EXTRA STYLES
+───────────────────────────── */
+/* card tags row */
+.wcard-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.85rem;position:relative;z-index:1}
+.wctag{font-size:9px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--border-dim);padding:.2rem .6rem;color:var(--muted);transition:all .25s;background:var(--bg)}
+.wcard:hover .wctag{border-color:var(--border);color:var(--green-dark)}
+.dark .wcard:hover .wctag{color:var(--green)}
+
+/* color gradient fallback when no cover image */
+.wimg-color{position:absolute;inset:0;z-index:0;transition:opacity .4s;opacity:1}
+.wimg img{z-index:1}
+.wcard:hover .wimg-color{opacity:.75}
+
+/* works 3-col on wide screens */
+@media(min-width:1200px){.wgrid{grid-template-columns:1fr 1fr 1fr}}
+
+/* ── TAPTAPTAG soon card ── */
+.wcard-soon{cursor:default}
+.wcard-soon::before{display:none} /* no green bar on hover */
+.soon-badge{
+  position:absolute;top:1.5rem;left:1.5rem;z-index:4;
+  background:var(--green);color:#fff;
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  padding:.28rem .75rem;animation:badgePulse 2.5s ease-in-out infinite;
+}
+.soon-img{background:var(--card2)!important;border:1px dashed var(--border)!important;display:flex!important;align-items:center;justify-content:center}
+.soon-inner{text-align:center;padding:1.5rem}
+.soon-logo{display:flex;gap:.12em;flex-wrap:wrap;justify-content:center;margin-bottom:.75rem}
+.soon-tap{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(1.3rem,3.5vw,2rem);letter-spacing:-.03em;color:var(--muted2);
+  animation:tapFloat 2s ease-in-out infinite;
+}
+.soon-tap:nth-child(2){animation-delay:.18s}
+.soon-tap:nth-child(3){animation-delay:.36s;color:var(--green)}
+.soon-sub{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:.5rem}
+.soon-arr{color:var(--muted2)!important;opacity:1!important;transform:none!important;animation:arrowPulse 1.6s ease-in-out infinite}
+
+/* ── PDF LIGHTBOX ── */
+#pdfBox{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;flex-direction:column;padding:1.5rem}
+#pdfBox.open{display:flex}
+#pdfClose{background:var(--green);border:none;color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:.55rem 1.25rem;cursor:pointer;transition:opacity .2s}
+#pdfClose:hover{opacity:.8}
+
+/* ─────────────────────────────
+   RESPONSIVE
+───────────────────────────── */
+@media(max-width:1100px){
+  .about-grid{grid-template-columns:280px 1fr;gap:3.5rem}
+}
+@media(max-width:768px){
+  /* no custom cursor on touch */
+  #cur,#ring{display:none}
+  body{cursor:auto}
+
+  /* NAV */
+  nav{padding:.85rem 1.2rem}
+  .nav-brand small{display:none}
+  .nav-links{gap:.9rem}
+  .nav-links a{font-size:9px;letter-spacing:.08em}
+  .nav-r{gap:.75rem}
+  .tog{width:36px;height:19px}
+  .tog-pill{width:12px;height:12px;top:2px;left:2px}
+  .dark .tog-pill{transform:translateX(17px)}
+
+  /* HERO */
+  .hero{padding:5.5rem 1.2rem 3rem;justify-content:center;min-height:100svh}
+  .hero-stripe{display:none}
+  .hero-dots{width:80px;height:80px;top:5.5rem;right:1.2rem}
+  .hero-bracket{top:5.5rem;left:1.2rem;width:28px;height:28px}
+  .hero-bracket2{bottom:3rem;right:1.2rem;width:28px;height:28px}
+  .hero-bg-word{font-size:clamp(4rem,24vw,8rem);opacity:.18}
+  .hero-pill{font-size:9px;margin-bottom:1rem}
+  .hero-eyebrow{margin-bottom:.5rem}
+
+  /* GRAVITY NAME — key: small font + short fall */
+  .gname{
+    font-size:clamp(2.6rem,10.5vw,4rem);
+    line-height:1;letter-spacing:-.02em;
+    margin-bottom:1.25rem;gap:.04em;
+  }
+  .gword{margin-right:.18em}
+
+  .hero-desc{font-size:12px;line-height:1.8;max-width:100%;margin-bottom:1.75rem}
+  .hero-cta{flex-direction:column;gap:.6rem}
+  .btn{width:100%;justify-content:space-between;font-size:10px;padding:.65rem 1rem}
+  .hero-loc{display:none}
+  .scroll-ind{bottom:.75rem}
+
+  /* MARQUEE */
+  .mi{font-size:clamp(.9rem,4.2vw,1.4rem)}
+
+  /* SECTIONS */
+  .sec,.cv-sec{padding:3.5rem 1.2rem}
+  .sec-hd{flex-direction:column;gap:.6rem;margin-bottom:2.25rem}
+  .sec-title{font-size:clamp(1.7rem,7vw,2.5rem)}
+  .sec-bracket{display:none}
+
+  /* ABOUT */
+  .about-grid{grid-template-columns:1fr;gap:2rem}
+  .photo-wrap{position:relative;top:auto;max-height:300px;overflow:hidden}
+  .photo-wrap img{object-position:top center}
+  .about-content{gap:1.75rem}
+
+  /* WORKS */
+  .wgrid{grid-template-columns:1fr}
+  .wcard{padding:1.25rem;min-height:auto}
+  .wimg{aspect-ratio:4/3}
+  .wnum{font-size:1.8rem;top:1rem;right:1rem}
+  .works-bar{padding:1.5rem 1.2rem}
+
+  /* CV */
+  .cvi{grid-template-columns:1fr;gap:.35rem;padding:1.1rem 0}
+  .cvi::before{left:-1.2rem}
+  .cv-sec{padding:3.5rem 1.2rem}
+  .cvbadge{align-self:flex-start;margin-top:.2rem}
+
+  /* CONTACT */
+  .csec{padding:3.5rem 1.2rem;grid-template-columns:1fr;gap:2.5rem}
+  .csec::before{display:none}
+  .cbig{font-size:clamp(1.9rem,7.5vw,2.8rem)}
+
+  /* FOOTER */
+  footer{padding:1.25rem 1.2rem;flex-direction:column;gap:.5rem;align-items:flex-start}
+}
+@media(max-width:380px){
+  .gname{font-size:clamp(2rem,9.5vw,2.8rem)}
+  .nav-links{gap:.55rem}
+  .nav-links a{font-size:8px}
+}
+</style>
+</head>
+<body>
+
+<div id="noise"></div>
+<div id="cur"></div>
+<div id="ring"></div>
+
+<!-- ══════════ NAV ══════════ -->
+<nav>
+  <a href="#" class="nav-logo">
+    <img src="assets/logo.png" alt="GRO"
+      onerror="this.style.display='none';document.getElementById('nl').style.display='flex'">
+    <span id="nl" style="display:none;width:34px;height:34px;background:var(--green);border-radius:5px;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:.7rem;color:#fff">GRO</span>
+    <div class="nav-brand">GRO<small>por Genaro M. Castro</small></div>
+  </a>
+  <div class="nav-r">
+    <ul class="nav-links">
+      <li><a href="#about">Acerca</a></li>
+      <li><a href="#works">Proyectos</a></li>
+      <li><a href="#cv">CV</a></li>
+      <li><a href="#contact">Contacto</a></li>
+    </ul>
+    <button class="tog" id="tog" aria-label="Cambiar tema">
+      <div class="tog-pill" id="togPill"></div>
+      <div class="tog-icons"><span>☀</span><span>☾</span></div>
+    </button>
+  </div>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero" id="hero">
+  <div class="hero-stripe"></div>
+  <div class="hero-dots"></div>
+  <div class="hero-bracket"></div>
+  <div class="hero-bracket2"></div>
+  <div class="hero-bg-word" aria-hidden="true">GRO</div>
+
+  <div class="hero-pill">Productor Audiovisual &amp; Diseñador Gráfico</div>
+  <p class="hero-eyebrow">Portafolio — 2025</p>
+
+  <div class="gname" id="gname" aria-label="Genaro Mateos Castro">
+    <span class="gword" data-word="Genaro"></span>
+    <span class="gword" data-word="Mateos"></span>
+    <span class="gword italic" data-word="Castro"></span>
+  </div>
+
+  <p class="hero-desc">
+    Estudiante de noveno semestre en la FADU, UAT. Especializado en narrativa cinematográfica, identidad visual y composición musical original para entornos digitales de alto impacto.
+  </p>
+
+  <div class="hero-cta">
+    <a href="#works" class="btn btn-green mag"><span>Ver proyectos</span><span class="barr">↗</span></a>
+    <a href="assets/CV_GenaroMateosCastro.pdf" class="btn btn-ghost mag" download><span>Descargar CV</span><span class="barr">↓</span></a>
+  </div>
+
+  <div class="hero-loc">
+    <div class="hero-loc-badge">
+      <span class="dot-live"></span>
+      Tamaulipas, MX
+    </div>
+    <div class="hero-loc-badge" style="margin-top:.3rem">
+      <span id="clock" style="color:var(--green);font-weight:500">––:––</span>&nbsp;CST
+    </div>
+  </div>
+
+  <div class="scroll-ind"><div class="scroll-line"></div><span>Deslizar</span></div>
+</section>
+
+<!-- ══════════ MARQUEE ══════════ -->
+<div class="marq-wrap">
+  <div class="marq-track">
+    <span class="mi f">GRO</span><span class="mi sep">✦</span>
+    <span class="mi">Producción Audiovisual</span><span class="mi sep">✦</span>
+    <span class="mi f">Diseño Gráfico</span><span class="mi sep">✦</span>
+    <span class="mi">Identidad Visual</span><span class="mi sep">✦</span>
+    <span class="mi f">Motion Graphics</span><span class="mi sep">✦</span>
+    <span class="mi">Diseño Sonoro</span><span class="mi sep">✦</span>
+    <!-- duplicate for seamless -->
+    <span class="mi f">GRO</span><span class="mi sep">✦</span>
+    <span class="mi">Producción Audiovisual</span><span class="mi sep">✦</span>
+    <span class="mi f">Diseño Gráfico</span><span class="mi sep">✦</span>
+    <span class="mi">Identidad Visual</span><span class="mi sep">✦</span>
+    <span class="mi f">Motion Graphics</span><span class="mi sep">✦</span>
+    <span class="mi">Diseño Sonoro</span><span class="mi sep">✦</span>
+  </div>
+</div>
+
+<!-- ══════════ ACERCA ══════════ -->
+<section class="sec" id="about">
+  <div class="sec-bracket"></div>
+  <div class="sec-hd reveal">
+    <span class="sec-num">01 / Acerca</span>
+    <h2 class="sec-title">Sobre <em>mí</em></h2>
+  </div>
+
+  <div class="about-grid">
+    <div class="photo-wrap reveal">
+      <img src="assets/foto.png" alt="Genaro Mateos Castro"
+        onerror="this.style.minHeight='300px';this.alt='foto.png → assets/foto.png'">
+      <div class="photo-corner">GMC · 2025</div>
+    </div>
+
+    <div class="about-content reveal">
+      <div class="rbox">
+        <div class="rlabel">— en este momento</div>
+        <div class="typed" id="typedLine">Produciendo historias.<span class="typed-cursor"></span></div>
+      </div>
+
+      <p class="bio">
+        Soy <strong>Genaro Mateos Castro</strong>, estudiante de noveno semestre de la Licenciatura en Diseño Gráfico en la FADU, UAT. Mi enfoque se centra en la <strong>creación de contenidos multimedia integrales</strong>: desde la narrativa cinematográfica y fotográfica hasta el diseño sonoro y la composición musical original.
+        <br><br>
+        Cuento con experiencia en gestión de imagen institucional y producción de materiales de comunicación social, aportando siempre una visión <strong>creativa, técnica y versátil</strong>.
+      </p>
+
+      <div>
+        <p class="sub-label">Especialidades</p>
+        <div class="tags">
+          <span class="tag">Producción Audiovisual</span>
+          <span class="tag">Diseño Gráfico</span>
+          <span class="tag">Identidad Visual</span>
+          <span class="tag">Fotografía</span>
+          <span class="tag">Diseño Sonoro</span>
+          <span class="tag">Composición Musical</span>
+          <span class="tag">Motion Graphics</span>
+          <span class="tag">Edición de Video</span>
+        </div>
+      </div>
+
+      <div>
+        <p class="sub-label">Herramientas</p>
+        <div class="tools">
+          <span class="tool"><span class="tdot" style="background:#f2c53d"></span>DaVinci <span style="margin-left:auto;color:var(--green);font-size:9px">90%</span></span>
+          <span class="tool"><span class="tdot" style="background:#9999ff"></span>Premiere <span style="margin-left:auto;color:var(--green);font-size:9px">95%</span></span>
+          <span class="tool"><span class="tdot" style="background:#d291ff"></span>After Effects</span>
+          <span class="tool"><span class="tdot" style="background:#31a8ff"></span>Photoshop <span style="margin-left:auto;color:var(--green);font-size:9px">100%</span></span>
+          <span class="tool"><span class="tdot" style="background:#ff9a00"></span>Illustrator <span style="margin-left:auto;color:var(--green);font-size:9px">95%</span></span>
+          <span class="tool"><span class="tdot" style="background:#c8403a"></span>Affinity</span>
+          <span class="tool"><span class="tdot" style="background:#a8c44a"></span>Ableton Live</span>
+          <span class="tool"><span class="tdot" style="background:#ff7854"></span>FL Studio <span style="margin-left:auto;color:var(--green);font-size:9px">100%</span></span>
+        </div>
+      </div>
+
+      <a href="#contact" class="btn btn-green mag" style="align-self:flex-start">
+        <span>Trabajemos juntos</span><span class="barr">↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ PROYECTOS ══════════ -->
+<section class="sec" id="works" style="padding-bottom:0">
+  <div class="sec-bracket"></div>
+  <div class="sec-hd reveal">
+    <span class="sec-num">02 / Proyectos</span>
+    <h2 class="sec-title">Mi <em>trabajo</em></h2>
+  </div>
+</section>
+
+<!--
+  ══ CÓMO AÑADIR IMÁGENES DE PORTADA ══
+  1. Exporta una captura de portada de cada PDF (1200×800px aprox.)
+  2. Guárdalas en:  assets/projects/bear.jpg  |  donchuy.jpg  |  curtipiel.jpg
+                    refugio.jpg  |  fotografia.jpg  |  taptaptag.jpg
+  3. Descomenta la línea <img> dentro de cada .wimg y borra el <span class="wph">
+-->
+
+<div class="wgrid">
+
+  <!-- 01 · BEAR SOLUTIONS -->
+  <div class="wcard reveal" data-pdf="assets/projects/2_retro_BEAR_SOLUTIONS.pdf">
+    <div class="wnum" aria-hidden="true">01</div>
+    <div class="wimg">
+      <!-- Imagen portada: retro badge rojo sobre crema -->
+      <img src="assets/projects/bear.jpg" alt="Bear Solutions"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <span class="wph" style="display:none">assets/projects/bear.jpg</span>
+      <!-- Fondo de color de marca cuando no hay imagen -->
+      <div class="wimg-color" style="background:linear-gradient(135deg,#f0e8d8 60%,#c8151550)"></div>
+    </div>
+    <div class="wcard-tags">
+      <span class="wctag">Identidad Visual</span>
+      <span class="wctag">Ilustración Retro</span>
+    </div>
+    <div class="wmeta">
+      <div>
+        <h3 class="wname">Bear Solutions</h3>
+        <p class="wtype">Identidad de Marca · 2024</p>
+      </div>
+      <div class="warr">↗</div>
+    </div>
+  </div>
+
+  <!-- 02 · DON CHUY -->
+  <div class="wcard reveal" data-pdf="assets/projects/PROPUESTA_GRAFICA_DON_CHUY.pdf">
+    <div class="wnum" aria-hidden="true">02</div>
+    <div class="wimg">
+      <img src="assets/projects/donchuy.jpg" alt="Don Chuy"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <span class="wph" style="display:none">assets/projects/donchuy.jpg</span>
+      <div class="wimg-color" style="background:linear-gradient(135deg,#f5830060 0%,#f58300 100%)"></div>
+    </div>
+    <div class="wcard-tags">
+      <span class="wctag">Campaña Digital</span>
+      <span class="wctag">Redes Sociales</span>
+    </div>
+    <div class="wmeta">
+      <div>
+        <h3 class="wname">Don Chuy</h3>
+        <p class="wtype">Propuesta Gráfica · 2024</p>
+      </div>
+      <div class="warr">↗</div>
+    </div>
+  </div>
+
+  <!-- 03 · CURTIPIEL (manual de marca) -->
+  <div class="wcard reveal" data-pdf="assets/projects/MATEOSCASTRO_MANUAL_CURTIPIEL.pdf">
+    <div class="wnum" aria-hidden="true">03</div>
+    <div class="wimg">
+      <img src="assets/projects/curtipiel.jpg" alt="Curtipiel"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <span class="wph" style="display:none">assets/projects/curtipiel.jpg</span>
+      <div class="wimg-color" style="background:linear-gradient(135deg,#4a2c1a,#8b5e3c)"></div>
+    </div>
+    <div class="wcard-tags">
+      <span class="wctag">Manual de Marca</span>
+      <span class="wctag">Branding</span>
+    </div>
+    <div class="wmeta">
+      <div>
+        <h3 class="wname">Curtipiel</h3>
+        <p class="wtype">Manual Corporativo · 2024</p>
+      </div>
+      <div class="warr">↗</div>
+    </div>
+  </div>
+
+  <!-- 04 · REFUGIO GOURMET -->
+  <div class="wcard reveal" data-pdf="assets/projects/manual_corporativo.pdf">
+    <div class="wnum" aria-hidden="true">04</div>
+    <div class="wimg">
+      <img src="assets/projects/refugio.jpg" alt="Refugio Gourmet"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <span class="wph" style="display:none">assets/projects/refugio.jpg</span>
+      <div class="wimg-color" style="background:linear-gradient(135deg,#f2ece0,#d4a843)"></div>
+    </div>
+    <div class="wcard-tags">
+      <span class="wctag">Manual Corporativo</span>
+      <span class="wctag">Packaging</span>
+    </div>
+    <div class="wmeta">
+      <div>
+        <h3 class="wname">Refugio Gourmet</h3>
+        <p class="wtype">Identidad Visual · 2024</p>
+      </div>
+      <div class="warr">↗</div>
+    </div>
+  </div>
+
+  <!-- 05 · PORTAFOLIO FOTOGRAFÍA -->
+  <div class="wcard reveal" data-pdf="assets/projects/PORTAFOLIO_FOTOGRAFIA.pdf">
+    <div class="wnum" aria-hidden="true">05</div>
+    <div class="wimg">
+      <img src="assets/projects/fotografia.jpg" alt="Portafolio Fotografía"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <span class="wph" style="display:none">assets/projects/fotografia.jpg</span>
+      <div class="wimg-color" style="background:linear-gradient(135deg,#111,#333)"></div>
+    </div>
+    <div class="wcard-tags">
+      <span class="wctag">Fotografía</span>
+      <span class="wctag">Editorial</span>
+    </div>
+    <div class="wmeta">
+      <div>
+        <h3 class="wname">Portafolio Fotografía</h3>
+        <p class="wtype">FADU UAT · 2023</p>
+      </div>
+      <div class="warr">↗</div>
+    </div>
+  </div>
+
+  <!-- 06 · TAPTAPTAG — próximamente -->
+  <div class="wcard wcard-soon reveal" id="taptaptag">
+    <div class="wnum" aria-hidden="true">06</div>
+    <!-- Tag animado de "próximamente" -->
+    <div class="soon-badge">Próximamente</div>
+    <div class="wimg soon-img">
+      <!-- Placeholder visual con nombre de marca -->
+      <div class="soon-inner">
+        <div class="soon-logo">
+          <span class="soon-tap">Tap</span><span class="soon-tap">Tap</span><span class="soon-tap soon-tag">Tag</span>
+        </div>
+        <p class="soon-sub">Proyecto de Emprendimiento</p>
+      </div>
+    </div>
+    <div class="wcard-tags">
+      <span class="wctag">Emprendimiento</span>
+      <span class="wctag">Branding</span>
+      <span class="wctag">NFC</span>
+    </div>
+    <div class="wmeta">
+      <div>
+        <h3 class="wname">TapTapTag</h3>
+        <p class="wtype">En desarrollo · 2025</p>
+      </div>
+      <div class="warr soon-arr">→</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PDF LIGHTBOX -->
+<div id="pdfBox" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);flex-direction:column;align-items:center;justify-content:center;padding:1.5rem">
+  <div style="display:flex;justify-content:space-between;align-items:center;width:100%;max-width:900px;margin-bottom:1rem">
+    <span id="pdfTitle" style="font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:#fff;letter-spacing:-.01em"></span>
+    <button id="pdfClose" style="background:var(--green);border:none;color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:.5rem 1.2rem;cursor:pointer">✕ Cerrar</button>
+  </div>
+  <iframe id="pdfFrame" style="width:100%;max-width:900px;height:80vh;border:none;border-radius:2px"></iframe>
+</div>
+
+<div class="works-bar reveal">
+  <a href="#contact" class="btn btn-ghost mag"><span>¿Tienes un proyecto en mente?</span><span class="barr">↗</span></a>
+</div>
+
+<!-- ══════════ CV ══════════ -->
+<section class="cv-sec" id="cv">
+  <div class="sec-hd reveal">
+    <span class="sec-num">03 / Experiencia</span>
+    <h2 class="sec-title">Mi <em>trayectoria</em></h2>
+  </div>
+
+  <div class="cv-list">
+    <div class="cvi">
+      <span class="cvyr">2025 — Actualidad</span>
+      <div>
+        <p class="cvrole">Creador de Contenido</p>
+        <p class="cvplace">Protección Civil de Tempoal, Veracruz</p>
+        <p class="cvresp">Producción y edición audiovisual para campañas de prevención de desastres. Documentación de operativos de emergencia. Cápsulas informativas dinámicas para redes sociales.</p>
+      </div>
+      <span class="cvbadge">Trabajo</span>
+    </div>
+    <div class="cvi">
+      <span class="cvyr">Jun – Dic 2025</span>
+      <div>
+        <p class="cvrole">Creador de Contenido &amp; Diseñador Gráfico</p>
+        <p class="cvplace">Preparatoria Arquímedes Caballero Caballero</p>
+        <p class="cvresp">Identidad visual para campañas de captación estudiantil. Gestión integral de publicidad digital. Diseño editorial y cobertura fotográfica.</p>
+      </div>
+      <span class="cvbadge">Trabajo</span>
+    </div>
+    <div class="cvi">
+      <span class="cvyr">2024</span>
+      <div>
+        <p class="cvrole">Producción Integral Audiovisual</p>
+        <p class="cvplace">Proyecto Académico — FADU UAT</p>
+        <p class="cvresp">Cortometrajes y piezas comerciales completas. Composición musical y diseño sonoro original: Foley, mezcla y masterización sin librerías de stock.</p>
+      </div>
+      <span class="cvbadge">Proyecto</span>
+    </div>
+    <div class="cvi">
+      <span class="cvyr">2021 — Presente</span>
+      <div>
+        <p class="cvrole">Licenciatura en Diseño Gráfico</p>
+        <p class="cvplace">FADU — Universidad Autónoma de Tamaulipas</p>
+        <p class="cvresp">Cursando 9° semestre. Especialización sólida en producción audiovisual.</p>
+      </div>
+      <span class="cvbadge">Educación</span>
+    </div>
+  </div>
+
+  <div style="margin-top:3.5rem" class="reveal">
+    <a href="assets/CV_GenaroMateosCastro.pdf" class="btn btn-green mag" download>
+      <span>Descargar CV</span><span class="barr">↓</span>
+    </a>
+  </div>
+</section>
+
+<!-- ══════════ CONTACTO ══════════ -->
+<section class="csec" id="contact">
+  <div class="reveal">
+    <h2 class="cbig">¡Trabajemos<br><em>juntos!</em></h2>
+    <div class="c-info">
+      <a href="mailto:genaro101298@gmail.com" class="cemail">genaro101298@gmail.com</a>
+      <span class="cphone">+52 789 121 6806</span>
+    </div>
+    <p class="cdesc">Disponible para proyectos audiovisuales, identidad visual, diseño gráfico y colaboraciones creativas. Siempre abierto a nuevas oportunidades.</p>
+    <div style="margin-top:2rem">
+      <a href="mailto:genaro101298@gmail.com" class="btn btn-green mag"><span>Enviar mensaje</span><span class="barr">↗</span></a>
+    </div>
+  </div>
+  <div class="socials reveal">
+    <p class="slabel">Redes y perfil</p>
+    <!-- EDITA: pon tus URLs reales -->
+    <a href="https://instagram.com/" target="_blank" class="slink">Instagram<span class="slink-arr">↗</span></a>
+    <a href="https://behance.net/"   target="_blank" class="slink">Behance<span class="slink-arr">↗</span></a>
+    <a href="https://linkedin.com/"  target="_blank" class="slink">LinkedIn<span class="slink-arr">↗</span></a>
+    <a href="https://github.com/"    target="_blank" class="slink">GitHub<span class="slink-arr">↗</span></a>
+  </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <p class="fcopy">© 2025 GRO — Genaro Mateos Castro · Tamaulipas, México</p>
+  <span class="flogo">GRO</span>
+</footer>
+
+<script>
+/* ─── THEME — runs BEFORE paint to avoid flash ─── */
+(function(){
+  const saved = localStorage.getItem('gro-theme') || 'light';
+  if(saved === 'dark') document.body.classList.add('dark');
+})();
+
+const tog = document.getElementById('tog');
+tog.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  localStorage.setItem('gro-theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+});
+
+/* ─── CURSOR ─── */
+const cur=document.getElementById('cur'), ring=document.getElementById('ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cur.style.left=mx+'px'; cur.style.top=my+'px';
+});
+(function anim(){
+  rx+=(mx-rx)*.11; ry+=(my-ry)*.11;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(anim);
+})();
+document.querySelectorAll('a,button,.wcard,.tag,.tool').forEach(el=>{
+  el.addEventListener('mouseenter',()=>ring.classList.add('h'));
+  el.addEventListener('mouseleave',()=>ring.classList.remove('h'));
+});
+
+/* ─── CLOCK CST ─── */
+function ck(){
+  const d=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Monterrey'}));
+  const el=document.getElementById('clock');
+  if(el) el.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+ck(); setInterval(ck,60000);
+
+/* ─── GRAVITY NAME ─── */
+const gnEl=document.getElementById('gname');
+const gWords=gnEl.querySelectorAll('.gword');
+let charIdx=0;
+gWords.forEach(wEl=>{
+  wEl.getAttribute('data-word').split('').forEach((ch,i)=>{
+    const sp=document.createElement('span');
+    sp.className='gc';
+    sp.textContent=ch;
+    const rot=(Math.random()*44-22).toFixed(1)+'deg';
+    sp.style.setProperty('--frot',rot);
+    sp.style.setProperty('--fdelay',(charIdx*0.038).toFixed(3)+'s');
+    sp.style.setProperty('--fd',(0.38+Math.random()*.2).toFixed(2)+'s');
+    wEl.appendChild(sp);
+    charIdx++;
+  });
+});
+
+// Responsive fall distance
+function setFallDist(){
+  const d = window.innerWidth<=768 ? '160px' : '280px';
+  document.querySelectorAll('.gc').forEach(c=>c.style.setProperty('--fdist',d));
+}
+setFallDist();
+window.addEventListener('resize',setFallDist,{passive:true});
+
+// Entrance animation
+setTimeout(()=>{
+  document.querySelectorAll('.gc').forEach((c,i)=>{
+    c.style.opacity='0';
+    c.style.transform='translateY(-20px)';
+    setTimeout(()=>{
+      c.style.transition=`opacity .4s ease ${i*.026}s, transform .4s cubic-bezier(.16,1,.3,1) ${i*.026}s`;
+      c.style.opacity='1';
+      c.style.transform='translateY(0)';
+    },60);
+  });
+},300);
+
+// Scroll gravity
+let fallen=false;
+function checkGravity(){
+  const sy=window.scrollY;
+  const trigger=window.innerHeight*.2;
+  const reset=window.innerHeight*.05;
+  if(!fallen && sy>trigger){
+    fallen=true;
+    document.querySelectorAll('.gc').forEach(c=>{
+      c.classList.remove('rising'); void c.offsetWidth; c.classList.add('fallen');
+    });
+  } else if(fallen && sy<=reset){
+    fallen=false;
+    document.querySelectorAll('.gc').forEach(c=>{
+      c.classList.remove('fallen'); void c.offsetWidth; c.classList.add('rising');
+    });
+  }
+}
+window.addEventListener('scroll',checkGravity,{passive:true});
+
+/* ─── SCROLL REVEAL ─── */
+const ob=new IntersectionObserver(
+  e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis')}),
+  {threshold:.07,rootMargin:'0px 0px -40px 0px'}
+);
+document.querySelectorAll('.reveal').forEach(el=>ob.observe(el));
+
+document.querySelectorAll('.cvi').forEach((el,i)=>{
+  const o=new IntersectionObserver(e=>{
+    if(e[0].isIntersecting){setTimeout(()=>el.classList.add('vis'),i*120);o.unobserve(el);}
+  },{threshold:.1});
+  o.observe(el);
+});
+
+/* ─── TYPED TEXT ─── */
+const phs=['Produciendo historias.','Diseñando identidades.','Componiendo sonidos.','Capturando momentos.','Creando marcas.'];
+let pi=0,ci=0,dl=false;
+const tlEl=document.getElementById('typedLine');
+const cursor=tlEl.querySelector('.typed-cursor');
+function tp(){
+  const c=phs[pi];
+  if(!dl){
+    // insert text before cursor
+    tlEl.childNodes[0] ? tlEl.childNodes[0].textContent=c.slice(0,ci+1) : tlEl.insertBefore(document.createTextNode(c.slice(0,ci+1)),cursor);
+    ci++;
+    if(ci===c.length){dl=true;setTimeout(tp,2200);return;}
+  } else {
+    tlEl.childNodes[0].textContent=c.slice(0,ci-1);
+    ci--;
+    if(ci===0){dl=false;pi=(pi+1)%phs.length;}
+  }
+  setTimeout(tp,dl?40:75);
+}
+// init first text node
+tlEl.insertBefore(document.createTextNode(''),cursor);
+tp();
+
+/* ─── MAGNETIC ─── */
+document.querySelectorAll('.mag').forEach(b=>{
+  b.addEventListener('mousemove',e=>{
+    const r=b.getBoundingClientRect();
+    b.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.12}px,${(e.clientY-r.top-r.height/2)*.12}px)`;
+  });
+  b.addEventListener('mouseleave',()=>{b.style.transform='';});
+});
+
+/* ─── PDF LIGHTBOX ─── */
+const pdfBox=document.getElementById('pdfBox');
+const pdfFrame=document.getElementById('pdfFrame');
+const pdfTitle=document.getElementById('pdfTitle');
+const pdfClose=document.getElementById('pdfClose');
+
+document.querySelectorAll('.wcard[data-pdf]').forEach(card=>{
+  card.style.cursor='pointer';
+  card.addEventListener('click',()=>{
+    const pdf=card.getAttribute('data-pdf');
+    const name=card.querySelector('.wname').textContent;
+    pdfFrame.src=pdf;
+    pdfTitle.textContent=name;
+    pdfBox.classList.add('open');
+    document.body.style.overflow='hidden';
+  });
+});
+
+pdfClose.addEventListener('click',()=>{
+  pdfBox.classList.remove('open');
+  pdfFrame.src='';
+  document.body.style.overflow='';
+});
+pdfBox.addEventListener('click',e=>{
+  if(e.target===pdfBox){
+    pdfBox.classList.remove('open');
+    pdfFrame.src='';
+    document.body.style.overflow='';
+  }
+});
+
+/* ─── SMOOTH SCROLL ─── */
+document.querySelectorAll("a[href^='#']").forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}
+  });
+});
+</script>
+</body>
+</html>
