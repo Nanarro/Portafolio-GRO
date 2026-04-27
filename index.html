@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GRO — Genaro Mateos Castro</title>
+<script>
+/* ─── THEME INIT — debe correr antes del primer render ─── */
+(function(){
+  const saved = localStorage.getItem('gro-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if(saved === 'dark' || (!saved && prefersDark)){
+    document.documentElement.classList.add('dark');
+  }
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
@@ -12,6 +22,7 @@
    TOKENS — light is default, JS adds .dark
 ───────────────────────────────────────── */
 :root{
+  color-scheme: light;
   --bg:#f2efe8;
   --bg2:#e8e4db;
   --bg3:#ddd8ce;
@@ -31,6 +42,7 @@
   --shadow:0 2px 24px rgba(0,0,0,.06);
 }
 .dark{
+  color-scheme: dark;
   --bg:#0e0e0b;
   --bg2:#181815;
   --bg3:#202019;
@@ -1386,16 +1398,20 @@ footer::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;back
 </footer>
 
 <script>
-/* ─── THEME — runs BEFORE paint to avoid flash ─── */
+/* ─── THEME TOGGLE ─── */
+/* El init ya corrió en <head> sobre documentElement.
+   Sincronizamos body con html al cargar, y el toggle actualiza ambos. */
 (function(){
-  const saved = localStorage.getItem('gro-theme') || 'light';
-  if(saved === 'dark') document.body.classList.add('dark');
+  if(document.documentElement.classList.contains('dark')){
+    document.body.classList.add('dark');
+  }
 })();
 
 const tog = document.getElementById('tog');
 tog.addEventListener('click', () => {
-  document.body.classList.toggle('dark');
-  localStorage.setItem('gro-theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+  const isDark = document.documentElement.classList.toggle('dark');
+  document.body.classList.toggle('dark', isDark);
+  localStorage.setItem('gro-theme', isDark ? 'dark' : 'light');
 });
 
 /* ─── CURSOR ─── */
