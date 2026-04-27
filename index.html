@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GRO — Genaro Mateos Castro</title>
+<script>
+/* THEME INIT — antes del primer render para evitar flash */
+(function(){
+  const saved = localStorage.getItem('gro-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if(saved === 'dark' || (!saved && prefersDark)){
+    document.documentElement.classList.add('dark');
+  }
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
@@ -12,6 +22,7 @@
    TOKENS — light is default, JS adds .dark
 ───────────────────────────────────────── */
 :root{
+  color-scheme: light;
   --bg:#f2efe8;
   --bg2:#e8e4db;
   --bg3:#ddd8ce;
@@ -31,12 +42,13 @@
   --shadow:0 2px 24px rgba(0,0,0,.06);
 }
 .dark{
+  color-scheme: dark;
   --bg:#0e0e0b;
   --bg2:#181815;
   --bg3:#202019;
   --fg:#f0ece4;
-  --muted:#5a5753;
-  --muted2:#3a3835;
+  --muted:#9e9a93;
+  --muted2:#6e6a64;
   --green:#a8c44a;
   --green2:#c8e46a;
   --green-dark:#7a9232;
@@ -51,11 +63,11 @@
 
 /* ─────────── RESET ─────────── */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;overflow-x:hidden}
 body{
   background:var(--bg);color:var(--fg);
   font-family:'DM Mono',monospace;
-  font-size:14px;line-height:1.6;
+  font-size:15px;line-height:1.7;
   overflow-x:hidden;cursor:none;
   transition:background .35s,color .35s;
 }
@@ -165,6 +177,8 @@ nav::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;backgro
   color:transparent;-webkit-text-stroke:1px var(--border-dim);
   white-space:nowrap;pointer-events:none;user-select:none;
   line-height:1;
+  max-width:calc(100vw - 2.5rem);
+  overflow:hidden;
 }
 
 .hero-pill{
@@ -343,8 +357,8 @@ nav::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;backgro
 .typed-cursor{display:inline-block;width:2px;height:1.2em;background:#fff;margin-left:2px;vertical-align:middle;animation:blink .75s step-end infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
-.bio{font-size:13px;line-height:2.05;color:var(--muted)}
-.bio strong{color:var(--fg);font-weight:500}
+.bio{font-size:15px;line-height:2.1;color:var(--fg);opacity:.75}
+.bio strong{color:var(--fg);font-weight:600;opacity:1}
 
 .sub-label{
   font-family:'Syne',sans-serif;font-weight:700;
@@ -380,86 +394,39 @@ nav::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;backgro
   position:relative;
 }
 .tools::-webkit-scrollbar{display:none}
-
 .tool{
   position:relative;
   display:flex;flex-direction:column;align-items:center;
-  gap:0;cursor:none;
-  flex-shrink:0;
-  /* JS sets --s (scale) via proximity */
+  gap:0;cursor:none;flex-shrink:0;
   --s:1;
   transform:scale(var(--s)) translateY(calc((var(--s) - 1) * -18px));
   transform-origin:bottom center;
   transition:transform .2s cubic-bezier(.34,1.4,.64,1);
-  /* reset old border/padding styles */
   border:none;padding:0;background:none;color:inherit;letter-spacing:0;
 }
 .tool-icon{
-  width:44px;height:44px;
-  border-radius:10px;
-  overflow:hidden;
+  width:44px;height:44px;border-radius:10px;overflow:hidden;
   display:flex;align-items:center;justify-content:center;
   background:var(--card2);
   box-shadow:0 2px 8px rgba(0,0,0,.15);
   transition:box-shadow .2s;
 }
-.tool-icon img{
-  width:100%;height:100%;
-  object-fit:contain;
-  pointer-events:none;
-  border-radius:8px;
-}
-.tool:hover .tool-icon,
-.tool.tap-active .tool-icon{
-  box-shadow:0 6px 20px rgba(0,0,0,.25);
-}
-
-/* tooltip */
+.tool-icon img{width:100%;height:100%;object-fit:contain;pointer-events:none;border-radius:8px}
+.tool:hover .tool-icon,.tool.tap-active .tool-icon{box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .tool-tip{
-  position:absolute;
-  bottom:calc(100% + 10px);
-  left:50%;transform:translateX(-50%) scale(.8);
+  position:absolute;bottom:calc(100% + 10px);left:50%;
+  transform:translateX(-50%) scale(.8);
   background:var(--fg);color:var(--bg);
-  font-family:'DM Mono',monospace;
-  font-size:10px;letter-spacing:.06em;
-  white-space:nowrap;
-  padding:4px 10px;border-radius:6px;
-  pointer-events:none;
-  opacity:0;
-  transform-origin:bottom center;
-  transition:opacity .15s,transform .15s;
-  z-index:10;
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;
+  white-space:nowrap;padding:4px 10px;border-radius:6px;
+  pointer-events:none;opacity:0;transform-origin:bottom center;
+  transition:opacity .15s,transform .15s;z-index:10;
 }
-.tool-tip::after{
-  content:'';position:absolute;top:100%;left:50%;
-  transform:translateX(-50%);
-  border:5px solid transparent;
-  border-top-color:var(--fg);
-}
-.tool:hover .tool-tip,
-.tool.tap-active .tool-tip{
-  opacity:1;
-  transform:translateX(-50%) scale(1);
-}
-
-/* skill % ring */
-.tool-pct{
-  font-size:9px;letter-spacing:.06em;color:var(--green);
-  margin-top:4px;font-family:'DM Mono',monospace;
-  opacity:0;
-  transition:opacity .2s;
-  line-height:1;
-}
-.tool:hover .tool-pct,
-.tool.tap-active .tool-pct{opacity:1}
-
-/* dot indicator at bottom of dock */
-.dock-dot{
-  width:4px;height:4px;border-radius:50%;
-  background:var(--muted2);
-  position:absolute;bottom:-10px;left:50%;
-  transform:translateX(-50%);
-}
+.tool-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--fg)}
+.tool:hover .tool-tip,.tool.tap-active .tool-tip{opacity:1;transform:translateX(-50%) scale(1)}
+.tool-pct{font-size:9px;letter-spacing:.06em;color:var(--green);margin-top:4px;font-family:'DM Mono',monospace;opacity:0;transition:opacity .2s;line-height:1}
+.tool:hover .tool-pct,.tool.tap-active .tool-pct{opacity:1}
+.dock-dot{width:4px;height:4px;border-radius:50%;background:var(--muted2);position:absolute;bottom:-10px;left:50%;transform:translateX(-50%)}
 
 /* ─────────────────────────────
    WORKS
@@ -1064,46 +1031,14 @@ footer::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;back
       <div>
         <p class="sub-label">Herramientas</p>
         <div class="tools" id="dock">
-          <span class="tool" data-tip="DaVinci Resolve" data-pct="90%">
-            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4d/DaVinci_Resolve_Studio.png" alt="DaVinci Resolve" loading="lazy"></span>
-            <span class="tool-tip">DaVinci Resolve · 90%</span>
-            <span class="tool-pct">90%</span>
-          </span>
-          <span class="tool" data-tip="Premiere Pro" data-pct="95%">
-            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Adobe_Premiere_Pro_CC_icon.svg/960px-Adobe_Premiere_Pro_CC_icon.svg.png" alt="Premiere Pro" loading="lazy"></span>
-            <span class="tool-tip">Premiere Pro · 95%</span>
-            <span class="tool-pct">95%</span>
-          </span>
-          <span class="tool" data-tip="After Effects" data-pct="85%">
-            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Adobe_After_Effects_CC_icon.svg/3840px-Adobe_After_Effects_CC_icon.svg.png" alt="After Effects" loading="lazy"></span>
-            <span class="tool-tip">After Effects · 85%</span>
-            <span class="tool-pct">85%</span>
-          </span>
-          <span class="tool" data-tip="Photoshop" data-pct="100%">
-            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Adobe_Photoshop_CC_icon.svg/960px-Adobe_Photoshop_CC_icon.svg.png" alt="Photoshop" loading="lazy"></span>
-            <span class="tool-tip">Photoshop · 100%</span>
-            <span class="tool-pct">100%</span>
-          </span>
-          <span class="tool" data-tip="Illustrator" data-pct="95%">
-            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Adobe_Illustrator_CC_icon.svg/3840px-Adobe_Illustrator_CC_icon.svg.png" alt="Illustrator" loading="lazy"></span>
-            <span class="tool-tip">Illustrator · 95%</span>
-            <span class="tool-pct">95%</span>
-          </span>
-          <span class="tool" data-tip="Affinity" data-pct="80%">
-            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Affinity_%28App%29_Logo.svg/1280px-Affinity_%28App%29_Logo.svg.png" alt="Affinity" loading="lazy"></span>
-            <span class="tool-tip">Affinity · 80%</span>
-            <span class="tool-pct">80%</span>
-          </span>
-          <span class="tool" data-tip="Ableton Live" data-pct="85%">
-            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Ableton_Live_logo.png" alt="Ableton Live" loading="lazy"></span>
-            <span class="tool-tip">Ableton Live · 85%</span>
-            <span class="tool-pct">85%</span>
-          </span>
-          <span class="tool" data-tip="FL Studio" data-pct="100%">
-            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/en/6/69/FL_Studio_11_just_logo.png" alt="FL Studio" loading="lazy"></span>
-            <span class="tool-tip">FL Studio · 100%</span>
-            <span class="tool-pct">100%</span>
-          </span>
+          <span class="tool"><span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4d/DaVinci_Resolve_Studio.png" alt="DaVinci Resolve" loading="lazy"></span><span class="tool-tip">DaVinci Resolve · 90%</span><span class="tool-pct">90%</span></span>
+          <span class="tool"><span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Adobe_Premiere_Pro_CC_icon.svg/960px-Adobe_Premiere_Pro_CC_icon.svg.png" alt="Premiere Pro" loading="lazy"></span><span class="tool-tip">Premiere Pro · 95%</span><span class="tool-pct">95%</span></span>
+          <span class="tool"><span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Adobe_After_Effects_CC_icon.svg/3840px-Adobe_After_Effects_CC_icon.svg.png" alt="After Effects" loading="lazy"></span><span class="tool-tip">After Effects · 85%</span><span class="tool-pct">85%</span></span>
+          <span class="tool"><span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Adobe_Photoshop_CC_icon.svg/960px-Adobe_Photoshop_CC_icon.svg.png" alt="Photoshop" loading="lazy"></span><span class="tool-tip">Photoshop · 100%</span><span class="tool-pct">100%</span></span>
+          <span class="tool"><span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Adobe_Illustrator_CC_icon.svg/3840px-Adobe_Illustrator_CC_icon.svg.png" alt="Illustrator" loading="lazy"></span><span class="tool-tip">Illustrator · 95%</span><span class="tool-pct">95%</span></span>
+          <span class="tool"><span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Affinity_%28App%29_Logo.svg/1280px-Affinity_%28App%29_Logo.svg.png" alt="Affinity" loading="lazy"></span><span class="tool-tip">Affinity · 80%</span><span class="tool-pct">80%</span></span>
+          <span class="tool"><span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Ableton_Live_logo.png" alt="Ableton Live" loading="lazy"></span><span class="tool-tip">Ableton Live · 85%</span><span class="tool-pct">85%</span></span>
+          <span class="tool"><span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/en/6/69/FL_Studio_11_just_logo.png" alt="FL Studio" loading="lazy"></span><span class="tool-tip">FL Studio · 100%</span><span class="tool-pct">100%</span></span>
           <span class="dock-dot"></span>
         </div>
       </div>
@@ -1502,17 +1437,48 @@ footer::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;back
 </footer>
 
 <script>
-/* ─── THEME — runs BEFORE paint to avoid flash ─── */
+/* ─── THEME TOGGLE ─── */
 (function(){
-  const saved = localStorage.getItem('gro-theme') || 'light';
-  if(saved === 'dark') document.body.classList.add('dark');
+  if(document.documentElement.classList.contains('dark')){
+    document.body.classList.add('dark');
+  }
 })();
 
 const tog = document.getElementById('tog');
 tog.addEventListener('click', () => {
-  document.body.classList.toggle('dark');
-  localStorage.setItem('gro-theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+  const isDark = document.documentElement.classList.toggle('dark');
+  document.body.classList.toggle('dark', isDark);
+  localStorage.setItem('gro-theme', isDark ? 'dark' : 'light');
 });
+
+/* ─── macOS DOCK EFFECT ─── */
+(function(){
+  const dock = document.getElementById('dock');
+  if(!dock) return;
+  const MAX_SCALE = 1.85, SPREAD = 110;
+  function updateDock(mx, my){
+    dock.querySelectorAll('.tool').forEach(el => {
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width / 2, cy = r.bottom;
+      const dist = Math.sqrt((mx-cx)**2 + (my-cy)**2);
+      const t = Math.max(0, 1 - dist / SPREAD);
+      el.style.setProperty('--s', (1 + (MAX_SCALE-1)*t*t).toFixed(3));
+    });
+  }
+  dock.addEventListener('mousemove', e => updateDock(e.clientX, e.clientY));
+  dock.addEventListener('mouseleave', () => dock.querySelectorAll('.tool').forEach(el => el.style.setProperty('--s','1')));
+  dock.querySelectorAll('.tool').forEach(el => {
+    el.addEventListener('touchstart', e => {
+      e.preventDefault();
+      dock.querySelectorAll('.tool').forEach(t => { t.classList.remove('tap-active'); t.style.setProperty('--s','1'); });
+      el.classList.add('tap-active');
+      el.style.setProperty('--s', MAX_SCALE.toString());
+    }, {passive:false});
+  });
+  document.addEventListener('touchstart', e => {
+    if(!dock.contains(e.target)) dock.querySelectorAll('.tool').forEach(t => { t.classList.remove('tap-active'); t.style.setProperty('--s','1'); });
+  });
+})();
 
 /* ─── CURSOR ─── */
 const cur=document.getElementById('cur'), ring=document.getElementById('ring');
@@ -1749,53 +1715,6 @@ document.addEventListener('keydown', e=>{
     else closeModal();
   }
 });
-
-/* ─── macOS DOCK PROXIMITY EFFECT ─── */
-(function(){
-  const dock = document.getElementById('dock');
-  if(!dock) return;
-  const MAX_SCALE = 1.85;
-  const SPREAD = 110; // px de radio de influencia
-
-  function updateDock(mx, my){
-    const items = dock.querySelectorAll('.tool');
-    items.forEach(el => {
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.bottom; // anclamos desde la base
-      const dist = Math.sqrt((mx - cx)**2 + (my - cy)**2);
-      const t = Math.max(0, 1 - dist / SPREAD);
-      const scale = 1 + (MAX_SCALE - 1) * t * t;
-      el.style.setProperty('--s', scale.toFixed(3));
-    });
-  }
-
-  function resetDock(){
-    dock.querySelectorAll('.tool').forEach(el => el.style.setProperty('--s', '1'));
-  }
-
-  // Mouse
-  dock.addEventListener('mousemove', e => updateDock(e.clientX, e.clientY));
-  dock.addEventListener('mouseleave', resetDock);
-
-  // Touch — tap activa el estado hover
-  dock.querySelectorAll('.tool').forEach(el => {
-    el.addEventListener('touchstart', e => {
-      e.preventDefault();
-      dock.querySelectorAll('.tool').forEach(t => t.classList.remove('tap-active'));
-      el.classList.add('tap-active');
-      el.style.setProperty('--s', MAX_SCALE.toString());
-    }, {passive:false});
-  });
-  document.addEventListener('touchstart', e => {
-    if(!dock.contains(e.target)){
-      dock.querySelectorAll('.tool').forEach(t => {
-        t.classList.remove('tap-active');
-        t.style.setProperty('--s','1');
-      });
-    }
-  });
-})();
 
 /* ─── SMOOTH SCROLL ─── */
 document.querySelectorAll("a[href^='#']").forEach(a=>{
