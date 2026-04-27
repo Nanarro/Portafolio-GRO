@@ -35,8 +35,8 @@
   --bg2:#181815;
   --bg3:#202019;
   --fg:#f0ece4;
-  --muted:#9e9a93;
-  --muted2:#6e6a64;
+  --muted:#5a5753;
+  --muted2:#3a3835;
   --green:#a8c44a;
   --green2:#c8e46a;
   --green-dark:#7a9232;
@@ -55,7 +55,7 @@ html{scroll-behavior:smooth}
 body{
   background:var(--bg);color:var(--fg);
   font-family:'DM Mono',monospace;
-  font-size:15px;line-height:1.7;
+  font-size:14px;line-height:1.6;
   overflow-x:hidden;cursor:none;
   transition:background .35s,color .35s;
 }
@@ -212,7 +212,7 @@ nav::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;backgro
 }
 
 .hero-desc{
-  font-size:14px;line-height:1.95;color:var(--muted);
+  font-size:13px;line-height:1.9;color:var(--muted);
   max-width:540px;margin-bottom:2.5rem;
   opacity:0;animation:aFadeUp .7s ease 1s forwards;
 }
@@ -343,8 +343,8 @@ nav::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;backgro
 .typed-cursor{display:inline-block;width:2px;height:1.2em;background:#fff;margin-left:2px;vertical-align:middle;animation:blink .75s step-end infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
-.bio{font-size:15px;line-height:2.1;color:var(--fg);opacity:.75}
-.bio strong{color:var(--fg);font-weight:600;opacity:1}
+.bio{font-size:13px;line-height:2.05;color:var(--muted)}
+.bio strong{color:var(--fg);font-weight:500}
 
 .sub-label{
   font-family:'Syne',sans-serif;font-weight:700;
@@ -363,20 +363,103 @@ nav::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;backgro
 .dark .tag{color:var(--green2)}
 .tag:hover{background:var(--green);color:#fff;border-color:var(--green)}
 
-.tools{display:flex;flex-wrap:wrap;gap:.4rem}
-.tool{
-  display:flex;align-items:center;gap:6px;
+/* ─── macOS DOCK ─── */
+.tools{
+  display:flex;flex-wrap:nowrap;
+  align-items:flex-end;
+  gap:6px;
+  padding:10px 14px 8px;
+  background:var(--card);
   border:1px solid var(--border-dim);
-  padding:.28rem .75rem;font-size:10px;letter-spacing:.08em;
-  color:var(--muted);transition:all .25s;background:var(--card);
+  border-radius:14px;
+  width:fit-content;
+  max-width:100%;
+  overflow-x:auto;
+  overflow-y:visible;
+  scrollbar-width:none;
+  position:relative;
 }
-.tool:hover{color:var(--green);border-color:var(--border)}
-.tdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tools::-webkit-scrollbar{display:none}
 
-/* tool percent bar */
-.tool-bar{height:2px;background:var(--border-dim);margin-top:.2rem;border-radius:1px;overflow:hidden}
-.tool-fill{height:100%;background:var(--green);border-radius:1px;transform:scaleX(0);transform-origin:left;transition:transform .8s cubic-bezier(.16,1,.3,1)}
-.tool-fill.vis{transform:scaleX(1)}
+.tool{
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;
+  gap:0;cursor:none;
+  flex-shrink:0;
+  /* JS sets --s (scale) via proximity */
+  --s:1;
+  transform:scale(var(--s)) translateY(calc((var(--s) - 1) * -18px));
+  transform-origin:bottom center;
+  transition:transform .2s cubic-bezier(.34,1.4,.64,1);
+  /* reset old border/padding styles */
+  border:none;padding:0;background:none;color:inherit;letter-spacing:0;
+}
+.tool-icon{
+  width:44px;height:44px;
+  border-radius:10px;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--card2);
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+  transition:box-shadow .2s;
+}
+.tool-icon img{
+  width:100%;height:100%;
+  object-fit:contain;
+  pointer-events:none;
+  border-radius:8px;
+}
+.tool:hover .tool-icon,
+.tool.tap-active .tool-icon{
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
+}
+
+/* tooltip */
+.tool-tip{
+  position:absolute;
+  bottom:calc(100% + 10px);
+  left:50%;transform:translateX(-50%) scale(.8);
+  background:var(--fg);color:var(--bg);
+  font-family:'DM Mono',monospace;
+  font-size:10px;letter-spacing:.06em;
+  white-space:nowrap;
+  padding:4px 10px;border-radius:6px;
+  pointer-events:none;
+  opacity:0;
+  transform-origin:bottom center;
+  transition:opacity .15s,transform .15s;
+  z-index:10;
+}
+.tool-tip::after{
+  content:'';position:absolute;top:100%;left:50%;
+  transform:translateX(-50%);
+  border:5px solid transparent;
+  border-top-color:var(--fg);
+}
+.tool:hover .tool-tip,
+.tool.tap-active .tool-tip{
+  opacity:1;
+  transform:translateX(-50%) scale(1);
+}
+
+/* skill % ring */
+.tool-pct{
+  font-size:9px;letter-spacing:.06em;color:var(--green);
+  margin-top:4px;font-family:'DM Mono',monospace;
+  opacity:0;
+  transition:opacity .2s;
+  line-height:1;
+}
+.tool:hover .tool-pct,
+.tool.tap-active .tool-pct{opacity:1}
+
+/* dot indicator at bottom of dock */
+.dock-dot{
+  width:4px;height:4px;border-radius:50%;
+  background:var(--muted2);
+  position:absolute;bottom:-10px;left:50%;
+  transform:translateX(-50%);
+}
 
 /* ─────────────────────────────
    WORKS
@@ -438,8 +521,8 @@ nav::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;backgro
 .cvyr{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:var(--green-dark);letter-spacing:.08em;padding-top:3px}
 .dark .cvyr{color:var(--green)}
 .cvrole{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;margin-bottom:.35rem;color:var(--fg)}
-.cvplace{font-size:13px;color:var(--muted)}
-.cvresp{font-size:12px;color:var(--muted);margin-top:.5rem;line-height:1.85}
+.cvplace{font-size:12px;color:var(--muted)}
+.cvresp{font-size:11px;color:var(--muted2);margin-top:.5rem;line-height:1.8}
 .cvbadge{
   font-family:'Syne',sans-serif;font-weight:700;
   font-size:9px;border:1.5px solid var(--border);
@@ -480,7 +563,7 @@ nav::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;backgro
 .cphone{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:.6rem}
 .cphone::before{content:'#';font-family:'Syne',sans-serif;font-weight:800;color:var(--green);opacity:.6}
 
-.cdesc{margin-top:1.5rem;font-size:14px;line-height:2;color:var(--muted);max-width:380px}
+.cdesc{margin-top:1.5rem;font-size:12px;line-height:1.95;color:var(--muted);max-width:380px}
 
 .socials{display:flex;flex-direction:column;justify-content:flex-end;gap:.25rem}
 .slabel{
@@ -980,15 +1063,48 @@ footer::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;back
 
       <div>
         <p class="sub-label">Herramientas</p>
-        <div class="tools">
-          <span class="tool"><span class="tdot" style="background:#f2c53d"></span>DaVinci <span style="margin-left:auto;color:var(--green);font-size:9px">90%</span></span>
-          <span class="tool"><span class="tdot" style="background:#9999ff"></span>Premiere <span style="margin-left:auto;color:var(--green);font-size:9px">95%</span></span>
-          <span class="tool"><span class="tdot" style="background:#d291ff"></span>After Effects</span>
-          <span class="tool"><span class="tdot" style="background:#31a8ff"></span>Photoshop <span style="margin-left:auto;color:var(--green);font-size:9px">100%</span></span>
-          <span class="tool"><span class="tdot" style="background:#ff9a00"></span>Illustrator <span style="margin-left:auto;color:var(--green);font-size:9px">95%</span></span>
-          <span class="tool"><span class="tdot" style="background:#c8403a"></span>Affinity</span>
-          <span class="tool"><span class="tdot" style="background:#a8c44a"></span>Ableton Live</span>
-          <span class="tool"><span class="tdot" style="background:#ff7854"></span>FL Studio <span style="margin-left:auto;color:var(--green);font-size:9px">100%</span></span>
+        <div class="tools" id="dock">
+          <span class="tool" data-tip="DaVinci Resolve" data-pct="90%">
+            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4d/DaVinci_Resolve_Studio.png" alt="DaVinci Resolve" loading="lazy"></span>
+            <span class="tool-tip">DaVinci Resolve · 90%</span>
+            <span class="tool-pct">90%</span>
+          </span>
+          <span class="tool" data-tip="Premiere Pro" data-pct="95%">
+            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Adobe_Premiere_Pro_CC_icon.svg/960px-Adobe_Premiere_Pro_CC_icon.svg.png" alt="Premiere Pro" loading="lazy"></span>
+            <span class="tool-tip">Premiere Pro · 95%</span>
+            <span class="tool-pct">95%</span>
+          </span>
+          <span class="tool" data-tip="After Effects" data-pct="85%">
+            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Adobe_After_Effects_CC_icon.svg/3840px-Adobe_After_Effects_CC_icon.svg.png" alt="After Effects" loading="lazy"></span>
+            <span class="tool-tip">After Effects · 85%</span>
+            <span class="tool-pct">85%</span>
+          </span>
+          <span class="tool" data-tip="Photoshop" data-pct="100%">
+            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Adobe_Photoshop_CC_icon.svg/960px-Adobe_Photoshop_CC_icon.svg.png" alt="Photoshop" loading="lazy"></span>
+            <span class="tool-tip">Photoshop · 100%</span>
+            <span class="tool-pct">100%</span>
+          </span>
+          <span class="tool" data-tip="Illustrator" data-pct="95%">
+            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Adobe_Illustrator_CC_icon.svg/3840px-Adobe_Illustrator_CC_icon.svg.png" alt="Illustrator" loading="lazy"></span>
+            <span class="tool-tip">Illustrator · 95%</span>
+            <span class="tool-pct">95%</span>
+          </span>
+          <span class="tool" data-tip="Affinity" data-pct="80%">
+            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Affinity_%28App%29_Logo.svg/1280px-Affinity_%28App%29_Logo.svg.png" alt="Affinity" loading="lazy"></span>
+            <span class="tool-tip">Affinity · 80%</span>
+            <span class="tool-pct">80%</span>
+          </span>
+          <span class="tool" data-tip="Ableton Live" data-pct="85%">
+            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Ableton_Live_logo.png" alt="Ableton Live" loading="lazy"></span>
+            <span class="tool-tip">Ableton Live · 85%</span>
+            <span class="tool-pct">85%</span>
+          </span>
+          <span class="tool" data-tip="FL Studio" data-pct="100%">
+            <span class="tool-icon"><img src="https://upload.wikimedia.org/wikipedia/en/6/69/FL_Studio_11_just_logo.png" alt="FL Studio" loading="lazy"></span>
+            <span class="tool-tip">FL Studio · 100%</span>
+            <span class="tool-pct">100%</span>
+          </span>
+          <span class="dock-dot"></span>
         </div>
       </div>
 
@@ -1633,6 +1749,53 @@ document.addEventListener('keydown', e=>{
     else closeModal();
   }
 });
+
+/* ─── macOS DOCK PROXIMITY EFFECT ─── */
+(function(){
+  const dock = document.getElementById('dock');
+  if(!dock) return;
+  const MAX_SCALE = 1.85;
+  const SPREAD = 110; // px de radio de influencia
+
+  function updateDock(mx, my){
+    const items = dock.querySelectorAll('.tool');
+    items.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.bottom; // anclamos desde la base
+      const dist = Math.sqrt((mx - cx)**2 + (my - cy)**2);
+      const t = Math.max(0, 1 - dist / SPREAD);
+      const scale = 1 + (MAX_SCALE - 1) * t * t;
+      el.style.setProperty('--s', scale.toFixed(3));
+    });
+  }
+
+  function resetDock(){
+    dock.querySelectorAll('.tool').forEach(el => el.style.setProperty('--s', '1'));
+  }
+
+  // Mouse
+  dock.addEventListener('mousemove', e => updateDock(e.clientX, e.clientY));
+  dock.addEventListener('mouseleave', resetDock);
+
+  // Touch — tap activa el estado hover
+  dock.querySelectorAll('.tool').forEach(el => {
+    el.addEventListener('touchstart', e => {
+      e.preventDefault();
+      dock.querySelectorAll('.tool').forEach(t => t.classList.remove('tap-active'));
+      el.classList.add('tap-active');
+      el.style.setProperty('--s', MAX_SCALE.toString());
+    }, {passive:false});
+  });
+  document.addEventListener('touchstart', e => {
+    if(!dock.contains(e.target)){
+      dock.querySelectorAll('.tool').forEach(t => {
+        t.classList.remove('tap-active');
+        t.style.setProperty('--s','1');
+      });
+    }
+  });
+})();
 
 /* ─── SMOOTH SCROLL ─── */
 document.querySelectorAll("a[href^='#']").forEach(a=>{
