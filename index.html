@@ -4,6 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GRO — Genaro Mateos Castro</title>
+
+<!-- SEO básico -->
+<meta name="description" content="Portafolio de Genaro Mateos Castro — Productor Audiovisual & Diseñador Gráfico. Especializado en narrativa cinematográfica, identidad visual y composición musical original.">
+<meta name="author" content="Genaro Mateos Castro">
+
+<!-- Open Graph (WhatsApp, Teams, Facebook, LinkedIn, Telegram) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nanarro.github.io/Portafolio-GRO/">
+<meta property="og:title" content="GRO — Genaro Mateos Castro">
+<meta property="og:description" content="Productor Audiovisual & Diseñador Gráfico · Portafolio 2025">
+<meta property="og:image" content="https://nanarro.github.io/Portafolio-GRO/assets/og-preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="es_MX">
+<meta property="og:site_name" content="GRO Portafolio">
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GRO — Genaro Mateos Castro">
+<meta name="twitter:description" content="Productor Audiovisual & Diseñador Gráfico · Portafolio 2025">
+<meta name="twitter:image" content="https://nanarro.github.io/Portafolio-GRO/assets/og-preview.png">
+
 <link rel="icon" type="png" href="assets/favicon-16x16.png">
 
 <script>
@@ -895,6 +917,31 @@ footer::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;back
 
   /* FOOTER */
   footer{padding:1.25rem 1.2rem;flex-direction:column;gap:.5rem;align-items:flex-start}
+
+  /* DOCK MÓVIL — más pequeño, sin animación */
+  .tools{
+    gap:4px;
+    padding:8px 10px 6px;
+    border-radius:12px;
+    overflow-x:auto;
+    flex-wrap:nowrap;
+  }
+  .tool{
+    transform:none !important;
+    transition:none !important;
+  }
+  .tool-icon{
+    width:34px;
+    height:34px;
+    border-radius:8px;
+  }
+  .tool-tip{display:none}
+  .tool-pct{
+    font-size:8px;
+    opacity:1 !important;
+    margin-top:3px;
+  }
+  .dock-dot{display:none}
 }
 @media(max-width:380px){
   .gname{font-size:clamp(2rem,9.5vw,2.8rem)}
@@ -1453,10 +1500,15 @@ tog.addEventListener('click', () => {
   localStorage.setItem('gro-theme', isDark ? 'dark' : 'light');
 });
 
-/* ─── macOS DOCK EFFECT ─── */
+/* ─── macOS DOCK EFFECT — solo desktop ─── */
 (function(){
   const dock = document.getElementById('dock');
   if(!dock) return;
+
+  // En dispositivos touch (móvil/tablet) no se activa el efecto
+  const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  if(isTouchDevice) return;
+
   const MAX_SCALE = 1.85, SPREAD = 110;
   function updateDock(mx, my){
     dock.querySelectorAll('.tool').forEach(el => {
@@ -1469,17 +1521,6 @@ tog.addEventListener('click', () => {
   }
   dock.addEventListener('mousemove', e => updateDock(e.clientX, e.clientY));
   dock.addEventListener('mouseleave', () => dock.querySelectorAll('.tool').forEach(el => el.style.setProperty('--s','1')));
-  dock.querySelectorAll('.tool').forEach(el => {
-    el.addEventListener('touchstart', e => {
-      e.preventDefault();
-      dock.querySelectorAll('.tool').forEach(t => { t.classList.remove('tap-active'); t.style.setProperty('--s','1'); });
-      el.classList.add('tap-active');
-      el.style.setProperty('--s', MAX_SCALE.toString());
-    }, {passive:false});
-  });
-  document.addEventListener('touchstart', e => {
-    if(!dock.contains(e.target)) dock.querySelectorAll('.tool').forEach(t => { t.classList.remove('tap-active'); t.style.setProperty('--s','1'); });
-  });
 })();
 
 /* ─── CURSOR ─── */
